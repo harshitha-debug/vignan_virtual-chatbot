@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vignan Chatbot</title>
+  <style>
+    :root {
+      --primary-blue: #1a73e8;
+      --dark-blue: #0d47a1;
+      --light-blue: #e8f0fe;
+      --lighter-blue: #f8f9fa;
+      --accent-blue: #4285f4;
+      --white: #ffffff;
+      --gray-light: #f1f3f4;
+      --gray-medium: #dadce0;
+      --gray-dark: #5f6368;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+      --transition: all 0.2s ease;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Google Sans', Arial, sans-serif;
+      background: #f1f1f1; /* Changed to solid color */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden; /* Prevent horizontal scroll */
+    }
+
+    .chatbot-container {
+      width: 90%;
+      max-width: 600px;
+      height: 80vh;
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--gray-medium);
+    }
+
+    .chat-header {
+      padding: 18px;
+      text-align: center;
+      background: linear-gradient(to right, var(--primary-blue), var(--accent-blue));
+      color: var(--white);
+      font-weight: 600;
+      font-size: 1.2rem;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .chat-header::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 10px solid var(--accent-blue);
+    }
+
+    .chat-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background-color: var(--lighter-blue); /* Removed dots */
+    }
+
+    .bot-message, .user-message {
+      padding: 12px 16px;
+      border-radius: 18px;
+      margin: 4px 0;
+      max-width: 85%;
+      line-height: 1.5;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+
+    .bot-message {
+      background: var(--white);
+      color: var(--gray-dark);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+      border: 1px solid var(--gray-medium);
+    }
+
+    .bot-message::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 12px;
+      width: 0;
+      height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-right: 8px solid var(--white);
+    }
+
+    .user-message {
+      background: linear-gradient(to right, var(--primary-blue), var(--accent-blue));
+      color: var(--white);
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    .radio-group {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      background: var(--white);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid var(--gray-medium);
+      font-size: 0.9rem;
+    }
+
+    .radio-group label:hover {
+      background: var(--light-blue);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .radio-group input[type="radio"] {
+      margin-right: 8px;
+      accent-color: var(--primary-blue);
+    }
+
+    .proof-label {
+      font-weight: 600;
+      margin: 15px 0 8px;
+      color: var(--dark-blue);
+      font-size: 0.9rem;
+    }
+
+    #imageInput {
+      width: 100%;
+      padding: 12px;
+      border: 2px dashed var(--gray-medium);
+      border-radius: 12px;
+      background: var(--white);
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    #imageInput:hover {
+      border-color: var(--primary-blue);
+      background: var(--light-blue);
+    }
+
+    .chat-footer {
+      padding: 15px;
+      border-top: 1px solid var(--gray-medium);
+      background-color: var(--white);
+    }
+
+    .chat-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chat-input {
+      flex: 1;
+      border: 1px solid var(--gray-medium);
+      resize: none;
+      padding: 12px 16px;
+      font-size: 14px;
+      border-radius: 25px;
+      outline: none;
+      background: var(--white);
+      min-height: 50px;
+      max-height: 120px;
+      overflow-y: auto;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chat-input:focus {
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
+    }
+
+    .send-btn {
+      border: none;
+      background: linear-gradient(to right, var(--primary-blue), var(--accent-blue));
+      color: white;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .send-btn:hover {
+      background: linear-gradient(to right, var(--dark-blue), var(--primary-blue));
+      transform: scale(1.05);
+    }
+
+    /* Home button specific styling - REVERTED TO ORIGINAL */
+    .chat-input-wrapper .send-btn:nth-child(3) {
+      background: var(--primary-blue);
+      color: white;
+      border: none;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--gray-light);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-blue);
+      border-radius: 10px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      .radio-group {
+        grid-template-columns: 1fr;
+      }
+      
+      .chatbot-container {
+        height: 90vh;
+      }
+      
+      .chat-input {
+        padding: 10px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- REST OF YOUR HTML AND JAVASCRIPT REMAINS EXACTLY THE SAME -->
+  <div class="chatbot-container">
+    <div class="chat-header">Vignan Chatbot</div>
+
+    <div class="chat-body" id="chatBody">
+      <div class="bot-message">👋 Welcome to Vignan Chatbot, feel free to raise any issue.</div>
+
+      <div class="radio-group" id="issue-options">
+        <label><input type="radio" name="issue" value="Ragging"> Ragging</label>
+        <label><input type="radio" name="issue" value="Faculty"> Faculty</label>
+        <label><input type="radio" name="issue" value="Maintenance"> Maintenance</label>
+        <label><input type="radio" name="issue" value="Water Problem"> Water Problem</label>
+        <label><input type="radio" name="issue" value="Food Quality"> Food Quality</label>
+        <label><input type="radio" name="issue" value="Electricity"> Electricity</label>
+        <label><input type="radio" name="issue" value="Wi-Fi"> Wi-Fi</label>
+        <label><input type="radio" name="issue" value="Library"> Library</label>
+        <label><input type="radio" name="issue" value="Transport"> Transport</label>
+        <label><input type="radio" name="issue" value="Others"> Others</label>
+      </div>
+
+      <div id="followup-container" style="display:none;">
+        <div class="bot-message" id="followup-text"></div>
+        <label class="proof-label">Upload proof image (optional):</label>
+        <input type="file" id="imageInput" accept="image/*" />
+      </div>
+    </div>
+
+    <div class="chat-footer">
+      <div class="chat-input-wrapper">
+        <textarea class="chat-input" placeholder="Type your issue here..."></textarea>
+        <button class="send-btn" onclick="submitIssue()">➤</button>
+        <button onclick="window.location.href='csphome.html'" class="send-btn">⌂</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function speak(text) {
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(utterance);
+  }
+}
+  const issueRadios = document.getElementsByName("issue");
+  const followupContainer = document.getElementById("followup-container");
+  const followupText = document.getElementById("followup-text");
+  const chatBody = document.getElementById("chatBody");
+
+  
+
+
+  issueRadios.forEach(radio => {
+  radio.addEventListener("change", () => {
+    const issue = radio.value;
+    const message = `Sorry for the issue regarding "${issue}". Please describe it below.`;
+    followupText.textContent = message;
+    followupContainer.style.display = "block";
+    scrollToBottom();
+    speak(message); // <-- This is the only new line added
+  });
+});
+
+  async function submitIssue() {
+    const textarea = document.querySelector(".chat-input");
+    const text = textarea.value.trim();
+    const image = document.getElementById("imageInput").files[0];
+    const selectedIssue = [...issueRadios].find(r => r.checked)?.value;
+
+    if (!text || !selectedIssue) {
+      alert("Please select an issue and write your complaint.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("category", selectedIssue);
+    formData.append("description", text);
+    if (image) {
+      formData.append("image", image);
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/complaints", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        // Show in chatbot
+        const userMsg = document.createElement("div");
+        userMsg.className = "user-message";
+        userMsg.textContent = text;
+        chatBody.appendChild(userMsg);
+
+        const botMsg = document.createElement("div");
+        botMsg.className = "bot-message";
+        botMsg.textContent = "Thank you for your feedback, we will look into the issue.";
+        chatBody.appendChild(botMsg);
+        speak(botMsg.textContent); 
+
+        scrollToBottom();
+
+        // Reset form
+        textarea.value = "";
+        document.getElementById("imageInput").value = "";
+        followupContainer.style.display = "none";
+        issueRadios.forEach(r => r.checked = false);
+
+        alert("✅ Complaint submitted successfully!");
+      } else {
+       const errorText = await response.text();
+console.error("❌ Server responded with error:", errorText);
+alert("❌ Error submitting complaint:\n" + errorText);
+      }
+    } catch (err) {
+      alert("⚠️ Failed to connect to server: " + err.message);
+    }
+  }
+
+  function scrollToBottom() {
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+</script>
+
+</body>
+</html>
